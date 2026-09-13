@@ -324,6 +324,9 @@ def sync_workout(
     from backend.api.programs import advance_program
 
     advance_program(db, workout)
+    # Offline finishes end an open break too — same rule as /finish
+    from backend.api.breaks import close_open_break
+    close_open_break(db, user.id, workout.started_at.date())
     db.commit()
     # Offline finishes land backdated — rebuild the flags chronologically
     recompute_prs(db, user.id)
@@ -816,6 +819,9 @@ def finish_workout(
     # never on start, so a cancelled session doesn't burn a slot.
     from backend.api.programs import advance_program
     advance_program(db, workout)
+    # Training resuming ends an open sick/other break (booked ones stand)
+    from backend.api.breaks import close_open_break
+    close_open_break(db, user.id, workout.started_at.date())
     db.commit()
     fire_webhook(user, workout, source="app")
     _publish_mqtt(db, user, workout)

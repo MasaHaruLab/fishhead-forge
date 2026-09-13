@@ -12,6 +12,7 @@ from backend.core.clock import utcnow
 from backend.core.database import get_db
 from backend.core.security import get_current_user
 from backend.models import (
+    Break,
     Exercise,
     Measurement,
     Program,
@@ -284,6 +285,92 @@ def music_stats(user: User = Depends(get_current_user), db: Session = Depends(ge
     }
 
 
+# Rebound: compare strength just before a break with the first sessions back
+REBOUND_WINDOW_DAYS = 21
+REBOUND_MIN_BREAK_DAYS = 4
+
+
+@router.get("/breaks")
+def breaks_summary(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """How often life interrupts training, and what it costs: days lost per
+    kind (last 365), and per-break strength rebound — best e1RM per exercise
+    in the 3 weeks before vs after, averaged over exercises seen on both
+    sides. 100% = came back exactly as strong."""
+    today = utcnow().date()
+    user_breaks = db.execute(
+        select(Break).where(Break.user_id == user.id).order_by(Break.start_date.desc())
+    ).scalars().all()
+
+    # daily best e1RM per exercise, one query for all rebound windows
+    rows = db.execute(
+        select(SetEntry, Workout.started_at, WorkoutExercise.exercise_id)
+        .join(WorkoutExercise, SetEntry.workout_exercise_id == WorkoutExercise.id)
+        .join(Workout, WorkoutExercise.workout_id == Workout.id)
+        .where(
+            Workout.owner_id == user.id,
+            Workout.finished_at.is_not(None),
+            SetEntry.is_completed.is_(True),
+            SetEntry.is_warmup.is_(False),
+            SetEntry.reps.is_not(None),
+        )
+    ).all()
+    daily_e1rm: dict[int, dict[date, float]] = defaultdict(dict)
+    for se, started_at, ex_id in rows:
+        if not se.weight or not se.reps:
+            continue
+        d = started_at.date()
+        v = epley_1rm(se.weight, se.reps)
+        if v > daily_e1rm[ex_id].get(d, 0.0):
+            daily_e1rm[ex_id][d] = v
+
+    def best_in(ex_days: dict[date, float], lo: date, hi: date) -> float:
+        return max((v for d, v in ex_days.items() if lo <= d <= hi), default=0.0)
+
+    year_ago = today - timedelta(days=365)
+    days_by_kind: dict[str, int] = defaultdict(int)
+    out = []
+    for b in user_breaks:
+        b_end = b.end_date or today
+        days = (b_end - b.start_date).days + 1
+        overlap_lo = max(b.start_date, year_ago)
+        if overlap_lo <= min(b_end, today):
+            days_by_kind[b.kind] += (min(b_end, today) - overlap_lo).days + 1
+
+        rebound = None
+        if b.end_date is not None and days >= REBOUND_MIN_BREAK_DAYS:
+            pcts = []
+            pre_lo = b.start_date - timedelta(days=REBOUND_WINDOW_DAYS)
+            post_hi = b.end_date + timedelta(days=REBOUND_WINDOW_DAYS)
+            for ex_days in daily_e1rm.values():
+                before = best_in(ex_days, pre_lo, b.start_date - timedelta(days=1))
+                after = best_in(ex_days, b.end_date + timedelta(days=1), post_hi)
+                if before > 0 and after > 0:
+                    pcts.append(after / before * 100)
+            if pcts:
+                rebound = round(sum(pcts) / len(pcts), 1)
+
+        out.append(
+            {
+                "id": b.id,
+                "kind": b.kind,
+                "start_date": b.start_date.isoformat(),
+                "end_date": b.end_date.isoformat() if b.end_date else None,
+                "days": days,
+                "note": b.note,
+                "auto_closed": b.auto_closed,
+                "rebound_pct": rebound,
+            }
+        )
+
+    return {
+        "breaks": out,
+        "days_last_year": dict(days_by_kind),
+        "count_last_year": sum(
+            1 for b in user_breaks if (b.end_date or today) >= year_ago
+        ),
+    }
+
+
 @router.get("")
 def stats(
     tz_offset: int = 0,
@@ -468,22 +555,51 @@ def stats(
             if block_idx is not None:
                 block_group_sets[exercise.muscle_group][block_idx] += working_sets
 
+    # Breaks (sick / time off): excused weeks PAUSE the streak — they bridge
+    # a gap without counting toward it, so illness never zeroes the number
+    # but a vacation month never inflates it either. A break only rescues
+    # weeks that would otherwise fail; a trained week counts normally even
+    # inside a booked vacation.
+    user_breaks = db.execute(
+        select(Break).where(Break.user_id == user.id)
+    ).scalars().all()
+    break_by_day: dict[str, str] = {}
+    excused_weeks: set[date] = set()
+    for b in user_breaks:
+        b_end = b.end_date or today
+        d = b.start_date
+        while d <= min(b_end, today):
+            break_by_day.setdefault(d.isoformat(), b.kind)
+            excused_weeks.add(_week_start(d))
+            d += timedelta(days=1)
+
     # Streak: consecutive trained weeks ending at the current week — or the
-    # previous one, so the streak isn't "broken" before this week's session
+    # previous one, so the streak isn't "broken" before this week's session.
+    # Excused weeks are skipped, not counted.
     this_week = _week_start(today)
-    streak = 0
-    cursor = this_week if this_week in trained_weeks else this_week - timedelta(weeks=1)
-    while cursor in trained_weeks:
-        streak += 1
+    cursor = (
+        this_week
+        if this_week in trained_weeks or this_week in excused_weeks
+        else this_week - timedelta(weeks=1)
+    )
+    run: list[bool] = []  # newest-first: True = trained, False = excused only
+    while cursor in trained_weeks or cursor in excused_weeks:
+        run.append(cursor in trained_weeks)
         cursor -= timedelta(weeks=1)
+    while run and not run[-1]:  # excused weeks before the first trained week
+        run.pop()               # shield nothing — don't show as "excused"
+    streak = sum(run)
+    streak_excused = len(run) - streak
 
     # Start on a Monday so heatmap columns are true calendar weeks
     calendar_start = _week_start(today) - timedelta(weeks=CALENDAR_WEEKS)
     calendar_days = (today - calendar_start).days + 1
     calendar = [
-        {"date": (calendar_start + timedelta(days=i)).isoformat(),
-         "workouts": by_day.get((calendar_start + timedelta(days=i)).isoformat(), 0)}
+        {"date": iso,
+         "workouts": by_day.get(iso, 0),
+         "break_kind": break_by_day.get(iso)}
         for i in range(calendar_days)
+        for iso in [(calendar_start + timedelta(days=i)).isoformat()]
     ]
 
     weeks = []
@@ -515,12 +631,19 @@ def stats(
             nudges.sort(key=lambda n: -n["days"])
             nudges = nudges[:2]
 
-    # Longest streak ever (consecutive trained weeks)
-    longest = run = 0
+    # Longest streak ever (consecutive trained weeks; excused weeks bridge)
+    longest = run_len = 0
     prev_week = None
     for wk in sorted(trained_weeks):
-        run = run + 1 if prev_week is not None and wk - prev_week == timedelta(weeks=1) else 1
-        longest = max(longest, run)
+        if prev_week is None:
+            run_len = 1
+        else:
+            gap_excused = all(
+                prev_week + timedelta(weeks=i) in excused_weeks
+                for i in range(1, (wk - prev_week).days // 7)
+            )
+            run_len = run_len + 1 if gap_excused else 1
+        longest = max(longest, run_len)
         prev_week = wk
 
     extras = None
@@ -1231,6 +1354,7 @@ def stats(
             "since": workouts[0].started_at if workouts else None,
         },
         "streak_weeks": streak,
+        "streak_excused_weeks": streak_excused,
         "calendar": calendar,
         "weeks": weeks,
         "muscle_trend": {

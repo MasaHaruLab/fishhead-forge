@@ -32,6 +32,30 @@ enum LocalNotifications {
             .removeDeliveredNotifications(withIdentifiers: ["rest-done"])
     }
 
+    // MARK: still sick?
+
+    /// An open-ended break that runs long deserves a nudge — the guard
+    /// against the forgotten-open-break hole. Fires once, 10 days after the
+    /// break started (or tomorrow evening if it's already been longer).
+    static func syncStillSick(openBreakStart: Date?) {
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: ["still-sick"])
+        guard let openBreakStart else { return }
+        requestAuthorization()
+        let cal = Calendar.current
+        let target = cal.date(byAdding: .day, value: 10, to: openBreakStart) ?? openBreakStart
+        var comps = cal.dateComponents([.year, .month, .day], from: max(
+            target, cal.date(byAdding: .day, value: 1, to: Date()) ?? target))
+        comps.hour = 18
+        comps.minute = 0
+        let content = UNMutableNotificationContent()
+        content.title = "Still on a break?"
+        content.body = "Your break is still open. End it in Forge when you're back — or just train, and it closes itself."
+        content.sound = .default
+        let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
+        center.add(UNNotificationRequest(identifier: "still-sick", content: content, trigger: trigger))
+    }
+
     // MARK: weigh-in reminder
 
     static func syncWeighInReminder(enabled: Bool, hour: Int) {

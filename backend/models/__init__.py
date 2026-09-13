@@ -1,5 +1,6 @@
 from backend.models.api_token import ApiToken
 from backend.models.app_setting import AppSetting
+from backend.models.break_ import Break
 from backend.models.exercise import Exercise
 from backend.models.exercise_note import ExerciseNote
 from backend.models.measurement import Measurement
@@ -12,6 +13,7 @@ from backend.models.workout import SetEntry, Workout, WorkoutExercise, WorkoutSo
 __all__ = [
     "ApiToken",
     "AppSetting",
+    "Break",
     "Exercise",
     "ExerciseNote",
     "Measurement",

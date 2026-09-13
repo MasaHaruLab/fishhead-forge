@@ -272,6 +272,15 @@ struct HomeView: View {
 func refreshWidgetSnapshot(programs: [Program]) async {
     let stats = try? await ForgeAPI.stats()
     let goal = (try? await ForgeAPI.me())?.weekly_goal ?? 3
+    // Keep the "still on a break?" nudge honest: re-sync on every refresh,
+    // so an auto-closed break cancels its pending notification.
+    if let breaks = try? await ForgeAPI.breaks() {
+        let df = DateFormatter()
+        df.dateFormat = "yyyy-MM-dd"
+        let openStart = breaks.first { $0.end_date == nil }
+            .flatMap { df.date(from: $0.start_date) }
+        LocalNotifications.syncStillSick(openBreakStart: openStart)
+    }
     let program = programs.first
     let next = program?.next
     WidgetSnapshot(

@@ -6,6 +6,7 @@ from fastapi.responses import FileResponse
 from backend.core.database import Base, SessionLocal, engine
 from backend.api import (
     auth,
+    breaks,
     programs,
     widget,
     metrics,
@@ -84,6 +85,7 @@ app.include_router(programs.router, prefix="/api")
 app.include_router(widget.router, prefix="/api")
 app.include_router(push.router, prefix="/api")
 app.include_router(measurements.router, prefix="/api")
+app.include_router(breaks.router, prefix="/api")
 app.include_router(backup.router, prefix="/api")
 app.include_router(updates.router, prefix="/api")
 

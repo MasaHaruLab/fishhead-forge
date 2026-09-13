@@ -12,6 +12,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
+import BreaksSheet, { BREAK_COLORS, BREAK_LABELS } from '../components/BreaksSheet'
 import EmptyState from '../components/EmptyState'
 import Segmented from '../components/Segmented'
 import Skeleton from '../components/Skeleton'
@@ -151,7 +152,8 @@ interface StatsData {
   trends: StatsTrends
   totals: { workouts: number; volume: number; sets: number; prs: number; since: string | null }
   streak_weeks: number
-  calendar: { date: string; workouts: number }[]
+  streak_excused_weeks: number
+  calendar: { date: string; workouts: number; break_kind: string | null }[]
   weeks: { week_start: string; volume: number; workouts: number; avg_rpe: number | null }[]
   muscle_groups: { group: string; sets: number }[]
   muscle_trend: Record<string, { week_start: string; sets: number }[]>
@@ -277,28 +279,61 @@ function CalendarHeatmap({ days }: { days: StatsData['calendar'] }) {
           </div>
           {weeks.map((week, i) => (
             <div key={i} className="flex shrink-0 flex-col" style={{ gap: GAP }}>
-              {week.map((d) => (
-                <div
-                  key={d.date}
-                  title={`${d.date}: ${d.workouts} workout${d.workouts === 1 ? '' : 's'}`}
-                  className="rounded-[3px]"
-                  style={{ width: CELL, height: CELL, backgroundColor: heatColor(d.workouts) }}
-                />
-              ))}
+              {week.map((d) => {
+                const bc = d.break_kind ? BREAK_COLORS[d.break_kind] : null
+                return (
+                  <div
+                    key={d.date}
+                    title={`${d.date}: ${d.workouts} workout${d.workouts === 1 ? '' : 's'}${
+                      d.break_kind ? ` · ${BREAK_LABELS[d.break_kind] ?? d.break_kind}` : ''
+                    }`}
+                    className="rounded-[3px]"
+                    style={{
+                      width: CELL,
+                      height: CELL,
+                      backgroundColor:
+                        d.workouts > 0
+                          ? heatColor(d.workouts)
+                          : bc
+                            ? `color-mix(in oklch, ${bc} 30%, var(--secondary))`
+                            : heatColor(0),
+                      // The aura: an excused day must read as "annotated, not
+                      // trained" by shape as well as hue
+                      boxShadow: bc ? `inset 0 0 0 1px ${bc}, 0 0 4px ${bc}80` : undefined,
+                    }}
+                  />
+                )
+              })}
             </div>
           ))}
         </div>
       </div>
-      <div className="mt-2 flex items-center justify-end gap-1.5 text-[10px] text-muted-foreground">
-        Less
-        {[0, 1, 2].map((n) => (
-          <span
-            key={n}
-            className="h-2.5 w-2.5 rounded-[3px]"
-            style={{ backgroundColor: heatColor(n) }}
-          />
-        ))}
-        More
+      <div className="mt-2 flex flex-wrap items-center justify-end gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
+        <span className="flex items-center gap-1.5">
+          {(['sick', 'time_off'] as const).map((k) => (
+            <span key={k} className="flex items-center gap-1">
+              <span
+                className="h-2.5 w-2.5 rounded-[3px]"
+                style={{
+                  backgroundColor: `color-mix(in oklch, ${BREAK_COLORS[k]} 30%, var(--secondary))`,
+                  boxShadow: `inset 0 0 0 1px ${BREAK_COLORS[k]}, 0 0 4px ${BREAK_COLORS[k]}80`,
+                }}
+              />
+              {BREAK_LABELS[k]}
+            </span>
+          ))}
+        </span>
+        <span className="flex items-center gap-1.5">
+          Less
+          {[0, 1, 2].map((n) => (
+            <span
+              key={n}
+              className="h-2.5 w-2.5 rounded-[3px]"
+              style={{ backgroundColor: heatColor(n) }}
+            />
+          ))}
+          More
+        </span>
       </div>
     </div>
   )
@@ -310,13 +345,15 @@ export default function StatsPage() {
   const [stats, setStats] = useCachedState<StatsData | null>('stats', null)
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null)
   const [tab, setTab] = useState<'overview' | 'trends'>('overview')
+  const [breaksOpen, setBreaksOpen] = useState(false)
   const unit = user?.unit ?? 'kg'
 
-  useEffect(() => {
+  const loadStats = () => {
     api<StatsData>(`/stats?tz_offset=${-new Date().getTimezoneOffset()}`)
       .then(setStats)
       .catch(() => {})
-  }, [])
+  }
+  useEffect(loadStats, [])
 
   if (!stats) {
     return (
@@ -404,6 +441,11 @@ export default function StatsPage() {
             <div className="flex-1">
               <div className="tnum text-lg font-semibold">
                 {stats.streak_weeks} week{stats.streak_weeks === 1 ? '' : 's'} streak
+                {stats.streak_excused_weeks > 0 && (
+                  <span className="ml-1.5 text-sm font-normal text-muted-foreground">
+                    · {stats.streak_excused_weeks} excused
+                  </span>
+                )}
               </div>
               <div className="text-sm text-muted-foreground">
                 {(() => {
@@ -584,7 +626,15 @@ export default function StatsPage() {
           </div>
 
           <section className="rounded-xl border bg-card p-4">
-            <h2 className="mb-3 text-base">Training calendar</h2>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-base">Training calendar</h2>
+              <button
+                onClick={() => setBreaksOpen(true)}
+                className="touch-feedback rounded-lg border px-2.5 py-1 text-xs text-muted-foreground"
+              >
+                Breaks
+              </button>
+            </div>
             <CalendarHeatmap days={stats.calendar} />
           </section>
 
@@ -1634,6 +1684,7 @@ export default function StatsPage() {
           )}
         </div>
       )}
+      <BreaksSheet open={breaksOpen} onClose={() => setBreaksOpen(false)} onChanged={loadStats} />
     </div>
   )
 }

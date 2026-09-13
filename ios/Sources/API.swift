@@ -516,6 +516,7 @@ struct StatsCalendarDay: Codable, Identifiable {
     var id: String { date }
     let date: String
     let workouts: Int
+    let break_kind: String?
 }
 
 struct StatsNamedCount: Codable {
@@ -843,6 +844,7 @@ struct MuscleTrendWeek: Codable, Identifiable {
 struct StatsResponse: Codable {
     let totals: StatsTotals
     let streak_weeks: Int
+    let streak_excused_weeks: Int?
     let weeks: [StatsWeek]
     let calendar: [StatsCalendarDay]
     let extras: StatsExtras?
@@ -869,6 +871,34 @@ struct Me: Codable {
 
 struct ServerHealth: Codable {
     let version: String?
+}
+
+// MARK: - breaks (sick / time off — the streak shield)
+
+struct BreakEntry: Codable, Identifiable {
+    let id: Int
+    let kind: String
+    let start_date: String
+    let end_date: String?
+    let note: String?
+    let auto_closed: Bool
+}
+
+struct BreakSummaryEntry: Codable, Identifiable {
+    let id: Int
+    let kind: String
+    let start_date: String
+    let end_date: String?
+    let days: Int
+    let note: String?
+    let auto_closed: Bool
+    let rebound_pct: Double?
+}
+
+struct BreaksSummary: Codable {
+    let breaks: [BreakSummaryEntry]
+    let days_last_year: [String: Int]
+    let count_last_year: Int
 }
 
 // MARK: - measurements
@@ -1177,6 +1207,40 @@ struct ForgeAPI {
 
     static func records() async throws -> [RecordEntry] {
         try JSONDecoder().decode([RecordEntry].self, from: await request("/api/stats/records"))
+    }
+
+    static func breaks() async throws -> [BreakEntry] {
+        try JSONDecoder().decode([BreakEntry].self, from: await request("/api/breaks"))
+    }
+
+    static func breaksSummary() async throws -> BreaksSummary {
+        try JSONDecoder().decode(BreaksSummary.self, from: await request("/api/stats/breaks"))
+    }
+
+    private static func breakBody(kind: String, start: String, end: String?, note: String?) throws -> Data {
+        // NSNull is deliberate: "end_date": null is how a break is re-opened
+        try JSONSerialization.data(withJSONObject: [
+            "kind": kind,
+            "start_date": start,
+            "end_date": end ?? NSNull() as Any,
+            "note": note ?? NSNull() as Any,
+        ] as [String: Any])
+    }
+
+    static func createBreak(kind: String, start: String, end: String?, note: String?) async throws {
+        _ = try await request(
+            "/api/breaks", method: "POST",
+            body: try breakBody(kind: kind, start: start, end: end, note: note))
+    }
+
+    static func updateBreak(id: Int, kind: String, start: String, end: String?, note: String?) async throws {
+        _ = try await request(
+            "/api/breaks/\(id)", method: "PATCH",
+            body: try breakBody(kind: kind, start: start, end: end, note: note))
+    }
+
+    static func deleteBreak(id: Int) async throws {
+        _ = try await request("/api/breaks/\(id)", method: "DELETE")
     }
 
     static func musicStats() async throws -> MusicStats {

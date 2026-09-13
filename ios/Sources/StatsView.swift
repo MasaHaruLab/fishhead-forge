@@ -21,6 +21,7 @@ struct StatsView: View {
     @State private var expandedGroup: String?
     @State private var volumeSelection: Date?
     @State private var loading = true
+    @State private var showBreaks = false
 
     var body: some View {
         NavigationStack {
@@ -67,6 +68,9 @@ struct StatsView: View {
             }
         }
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $showBreaks, onDismiss: { Task { await load() } }) {
+            BreaksView()
+        }
         .task {
             await load()
             if debugMeasureKind != nil { showDebugMeasure = true }
@@ -128,9 +132,12 @@ struct StatsView: View {
                 .frame(width: 44, height: 44)
                 .background(RoundedRectangle(cornerRadius: 12).fill(FG.emberSoft))
             VStack(alignment: .leading, spacing: 3) {
-                Text("\(s.streak_weeks) week\(s.streak_weeks == 1 ? "" : "s") streak")
+                (Text("\(s.streak_weeks) week\(s.streak_weeks == 1 ? "" : "s") streak")
                     .font(.system(size: 17, weight: .semibold).monospacedDigit())
                     .foregroundStyle(.white)
+                 + Text((s.streak_excused_weeks ?? 0) > 0 ? "  · \(s.streak_excused_weeks ?? 0) excused" : "")
+                    .font(.system(size: 13))
+                    .foregroundStyle(FG.muted))
                 Text(thisWeek >= weeklyGoal
                      ? "weekly goal hit — \(thisWeek) workout\(thisWeek == 1 ? "" : "s") this week"
                      : "\(thisWeek) of \(weeklyGoal) workouts this week")
@@ -277,8 +284,20 @@ struct StatsView: View {
 
     private func calendarCard(_ days: [StatsCalendarDay]) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Training calendar")
-                .font(.system(size: 16, weight: .semibold)).foregroundStyle(.white)
+            HStack {
+                Text("Training calendar")
+                    .font(.system(size: 16, weight: .semibold)).foregroundStyle(.white)
+                Spacer()
+                Button {
+                    showBreaks = true
+                } label: {
+                    Text("Breaks")
+                        .font(.system(size: 12)).foregroundStyle(FG.muted)
+                        .padding(.horizontal, 9).padding(.vertical, 5)
+                        .background(Capsule().stroke(FG.border, lineWidth: 1))
+                }
+                .buttonStyle(Pressable())
+            }
             CalendarHeatmap(days: days)
         }
         .padding(14)
@@ -707,14 +726,23 @@ private struct CalendarHeatmap: View {
                     ForEach(Array(weeks.enumerated()), id: \.offset) { _, week in
                         VStack(spacing: gap) {
                             ForEach(week) { d in
-                                RoundedRectangle(cornerRadius: 3)
-                                    .fill(heatColor(d.workouts))
-                                    .frame(width: cell, height: cell)
+                                dayCell(d)
                             }
                         }
                     }
                 }
                 HStack(spacing: 5) {
+                    ForEach(["sick", "time_off"], id: \.self) { kind in
+                        HStack(spacing: 3) {
+                            RoundedRectangle(cornerRadius: 3)
+                                .fill(BreaksView.color(kind).opacity(0.25))
+                                .overlay(RoundedRectangle(cornerRadius: 3)
+                                    .stroke(BreaksView.color(kind), lineWidth: 1))
+                                .frame(width: 10, height: 10)
+                            Text(BreaksView.label(kind))
+                                .font(.system(size: 10)).foregroundStyle(FG.muted)
+                        }
+                    }
                     Spacer()
                     Text("Less").font(.system(size: 10)).foregroundStyle(FG.muted)
                     ForEach(0..<3, id: \.self) { n in
@@ -730,6 +758,25 @@ private struct CalendarHeatmap: View {
 
     private func heatColor(_ workouts: Int) -> Color {
         workouts == 0 ? FG.secondary : workouts == 1 ? FG.ember.opacity(0.55) : FG.ember
+    }
+
+    /// A break day carries an aura — ring + glow — so an excused day reads
+    /// as "annotated, not trained" by shape as well as hue. A workout inside
+    /// a break keeps its normal fill; the ring just marks the period.
+    @ViewBuilder
+    private func dayCell(_ d: StatsCalendarDay) -> some View {
+        if let kind = d.break_kind {
+            let c = BreaksView.color(kind)
+            RoundedRectangle(cornerRadius: 3)
+                .fill(d.workouts > 0 ? heatColor(d.workouts) : c.opacity(0.25))
+                .overlay(RoundedRectangle(cornerRadius: 3).stroke(c, lineWidth: 1))
+                .shadow(color: c.opacity(0.5), radius: 2)
+                .frame(width: cell, height: cell)
+        } else {
+            RoundedRectangle(cornerRadius: 3)
+                .fill(heatColor(d.workouts))
+                .frame(width: cell, height: cell)
+        }
     }
 
     private func monthLabel(weeks: [[StatsCalendarDay]], index: Int) -> String {
