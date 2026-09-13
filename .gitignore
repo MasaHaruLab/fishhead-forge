@@ -21,3 +21,4 @@ website/.astro/
 ios/Forge.xcodeproj/
 ios/build/
 ios/build-device/
+deploy.local.sh
