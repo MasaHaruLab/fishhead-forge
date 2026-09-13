@@ -275,19 +275,35 @@ struct WorkoutDetailView: View {
             .foregroundStyle(.white)
             .tint(FG.ember)
             if let finished {
-                DatePicker("Finished", selection: Binding(
-                    get: { finished },
-                    set: { newValue in
-                        Task {
-                            try? await ForgeAPI.patchWorkout(id: workoutId, finishedAt: newValue)
-                            await load()
-                            await onChanged()
+                // Time only — the end date derives from the start, rolling to
+                // the next day when the time is earlier (a session past
+                // midnight). Two full date pickers were overkill (issue #2).
+                HStack(spacing: 6) {
+                    DatePicker("Finished", selection: Binding(
+                        get: { finished },
+                        set: { newValue in
+                            let cal = Calendar.current
+                            let t = cal.dateComponents([.hour, .minute], from: newValue)
+                            var end = cal.date(
+                                bySettingHour: t.hour ?? 0, minute: t.minute ?? 0,
+                                second: 0, of: started) ?? newValue
+                            if end < started {
+                                end = cal.date(byAdding: .day, value: 1, to: end) ?? end
+                            }
+                            Task {
+                                try? await ForgeAPI.patchWorkout(id: workoutId, finishedAt: end)
+                                await load()
+                                await onChanged()
+                            }
                         }
+                    ), displayedComponents: .hourAndMinute)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(.white)
+                    .tint(FG.ember)
+                    if !Calendar.current.isDate(finished, inSameDayAs: started) {
+                        Text("next day").font(.system(size: 11)).foregroundStyle(FG.muted)
                     }
-                ))
-                .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(.white)
-                .tint(FG.ember)
+                }
             }
         }
         .padding(.top, 8)

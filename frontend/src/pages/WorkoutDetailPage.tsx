@@ -374,12 +374,23 @@ export default function WorkoutDetailPage() {
               {workout.finished_at && (
                 <>
                   <span className="text-sm text-muted-foreground">–</span>
+                  {/* Time only — a workout ends on the day it started, except
+                      past midnight, which "end before start rolls to the next
+                      day" covers without a second date picker (issue #2) */}
                   <input
-                    type="datetime-local"
-                    defaultValue={toDatetimeLocal(workout.finished_at)}
+                    type="time"
+                    defaultValue={parseUTC(workout.finished_at)
+                      .toTimeString()
+                      .slice(0, 5)}
                     onBlur={(e) => {
                       if (!e.target.value || !workout.finished_at) return
-                      const iso = new Date(e.target.value).toISOString()
+                      const [h, m] = e.target.value.split(':').map(Number)
+                      const end = new Date(parseUTC(workout.started_at))
+                      end.setHours(h, m, 0, 0)
+                      if (end < parseUTC(workout.started_at)) {
+                        end.setDate(end.getDate() + 1)
+                      }
+                      const iso = end.toISOString()
                       if (iso !== parseUTC(workout.finished_at).toISOString()) {
                         api<Workout>(`/workouts/${workout.id}`, {
                           method: 'PATCH',
@@ -393,6 +404,10 @@ export default function WorkoutDetailPage() {
                     }}
                     className="rounded-md border border-input bg-card px-2 py-0.5 text-sm text-muted-foreground outline-none focus:ring-2 focus:ring-ring"
                   />
+                  {parseUTC(workout.finished_at).toDateString() !==
+                    parseUTC(workout.started_at).toDateString() && (
+                    <span className="text-xs text-muted-foreground">next day</span>
+                  )}
                 </>
               )}
             </span>
