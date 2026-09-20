@@ -10,50 +10,54 @@
   --color-accent-fg: var(--accent-fg);
 }
 
-/* Light — warm paper with the ember accent, matching the app's light theme.
-   The site (like the app) defaults to dark; light is the daylight option. */
+/* Light navy-gold (default) — 乐理大师 palette. Hex sources in THEME.md. */
 :root {
-  --bg: oklch(0.975 0.003 85);
-  --fg: oklch(0.21 0.012 60);
-  --muted: oklch(0.50 0.010 70);
-  --card: oklch(0.995 0.002 85);
-  --border: oklch(0.90 0.005 85);
-  --accent: oklch(0.48 0.13 45);
-  --accent-soft: oklch(0.48 0.13 45 / 0.18);
-  --accent-fg: oklch(0.98 0.005 85);
-  --diagram-accent: var(--accent);
-  --diagram-accent-fill: var(--accent-soft);
+  --bg: #F7F4EF;
+  --fg: #1B3A5C;
+  --muted: #455A64;
+  --card: #FFFEFA;
+  --border: color-mix(in srgb, #455A64 22%, transparent);
+  --accent: #1B3A5C;
+  --accent-soft: color-mix(in srgb, #1B3A5C 10%, transparent);
+  --accent-fg: #F7F4EF;
+  --link: #2E6DA4;
+  --gold: #C9A84C;
+  --diagram-accent: var(--gold);
+  --diagram-accent-fill: color-mix(in srgb, var(--gold) 18%, transparent);
   --shot-shadow: 0 24px 48px -12px oklch(0 0 0 / 0.35);
 }
 
-/* Dark (default) — near-neutral warm charcoal + glowing ember, the app's
-   home look. A gym app lives in dark rooms and OLED phones. */
+/* Dark — deep navy + gold CTAs. Optional; light is the default. */
 html.theme-dark {
-  --bg: oklch(0.16 0.004 60);
-  --fg: oklch(0.955 0.004 80);
-  --muted: oklch(0.74 0.008 70);
-  --card: oklch(0.21 0.005 60);
-  --border: oklch(0.95 0.008 60 / 14%);
-  --accent: oklch(0.70 0.13 50);
-  --accent-soft: oklch(0.70 0.13 50 / 0.18);
-  --accent-fg: oklch(0.15 0.02 50);
-  --diagram-accent: var(--accent);
+  --bg: #12263D;
+  --fg: #F7F4EF;
+  --muted: color-mix(in srgb, #F7F4EF 72%, #455A64);
+  --card: #1B3A5C;
+  --border: color-mix(in srgb, #F7F4EF 18%, transparent);
+  --accent: #C9A84C;
+  --accent-soft: color-mix(in srgb, #C9A84C 16%, transparent);
+  --accent-fg: #1B3A5C;
+  --link: #7EB6E0;
+  --gold: #C9A84C;
+  --diagram-accent: var(--gold);
   --diagram-accent-fill: var(--accent-soft);
-  --shot-shadow: 0 20px 46px -14px oklch(0.70 0.13 50 / 0.35);
+  --shot-shadow: 0 20px 46px -14px color-mix(in srgb, #C9A84C 35%, transparent);
 }
 
 html.theme-black {
-  --bg: oklch(0 0 0);
-  --fg: oklch(0.955 0.004 80);
-  --muted: oklch(0.72 0.008 70);
-  --card: oklch(0.145 0.003 60);
-  --border: oklch(1 0 0 / 15%);
-  --accent: oklch(0.72 0.13 50);
-  --accent-soft: oklch(0.72 0.13 50 / 0.2);
-  --accent-fg: oklch(0.12 0.02 50);
-  --diagram-accent: var(--accent);
+  --bg: #000000;
+  --fg: #F7F4EF;
+  --muted: color-mix(in srgb, #F7F4EF 70%, #455A64);
+  --card: #0F1C2B;
+  --border: color-mix(in srgb, #F7F4EF 15%, transparent);
+  --accent: #C9A84C;
+  --accent-soft: color-mix(in srgb, #C9A84C 20%, transparent);
+  --accent-fg: #1B3A5C;
+  --link: #7EB6E0;
+  --gold: #C9A84C;
+  --diagram-accent: var(--gold);
   --diagram-accent-fill: var(--accent-soft);
-  --shot-shadow: 0 20px 46px -14px oklch(0.72 0.13 50 / 0.42);
+  --shot-shadow: 0 20px 46px -14px color-mix(in srgb, #C9A84C 42%, transparent);
 }
 
 html, body {
@@ -135,7 +139,7 @@ html { scroll-behavior: smooth; }
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse 60% 40% at 50% 30%, var(--accent-soft), transparent 70%);
+  background: radial-gradient(ellipse 60% 40% at 50% 30%, color-mix(in srgb, var(--gold) 22%, transparent), transparent 70%);
   animation: accent-drift 12s ease-in-out infinite;
   z-index: -1;
 }
@@ -271,7 +275,7 @@ html { scroll-behavior: smooth; }
 }
 .docs-nav-link:hover { color: var(--fg); background: var(--card); }
 .docs-nav-link.is-active {
-  color: var(--accent);
+  color: var(--link);
   background: var(--accent-soft);
   font-weight: 500;
 }
@@ -353,7 +357,7 @@ html { scroll-behavior: smooth; }
   padding: 0;
 }
 .docs-article a {
-  color: var(--accent);
+  color: var(--link);
   text-decoration: underline;
   text-underline-offset: 3px;
   text-decoration-thickness: 1px;
@@ -586,8 +590,8 @@ html { scroll-behavior: smooth; }
 }
 .docs-toc-link:hover { color: var(--fg); }
 .docs-toc-link.is-active {
-  color: var(--accent);
-  border-left-color: var(--accent);
+  color: var(--link);
+  border-left-color: var(--link);
   font-weight: 500;
 }
 
@@ -849,7 +853,7 @@ html.theme-black .theme-toggle [data-theme-set="black"]:hover {
   margin-bottom: -1px;
 }
 .docs-tabs-trigger:hover { color: var(--fg); }
-.docs-tabs-trigger.is-active { color: var(--accent); border-bottom-color: var(--accent); }
+.docs-tabs-trigger.is-active { color: var(--link); border-bottom-color: var(--link); }
 .docs-tabs-panel { padding-top: 16px; }
 .docs-tabs-panel > *:first-child { margin-top: 0; }
 

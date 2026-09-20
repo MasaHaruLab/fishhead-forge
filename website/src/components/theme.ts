@@ -10,7 +10,7 @@ export function readTheme(): Theme {
   if (typeof window === 'undefined') return 'light'
   const stored = localStorage.getItem(KEY) as Theme | null
   if (stored === 'light' || stored === 'dark' || stored === 'black') return stored
-  return 'dark'
+  return 'light'
 }
 
 export function setTheme(theme: Theme, originX?: number, originY?: number): void {

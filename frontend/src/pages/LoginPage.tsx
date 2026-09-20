@@ -3,13 +3,14 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { api } from '../lib/api'
+import { APP_NAME } from '../lib/brand'
 
 const SSO_ERRORS: Record<string, string> = {
   disabled: 'SSO is not configured on this server.',
   exchange: 'The identity provider rejected the sign-in — try again.',
   claims: 'The identity provider sent an incomplete profile.',
   not_allowed: 'Your account is not allowed to sign in here.',
-  no_account: 'No Forge account is linked to that identity.',
+  no_account: 'No 鱼头健身 account is linked to that identity.',
   already_linked: 'That identity is already linked to another account.',
 }
 
@@ -53,7 +54,7 @@ export default function LoginPage() {
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
             <Flame size={34} />
           </div>
-          <h1 className="text-3xl">Forge</h1>
+          <h1 className="text-3xl">{APP_NAME}</h1>
           <p className="text-sm text-muted-foreground">Sign in to keep lifting</p>
         </div>
         <div className="flex flex-col gap-3">

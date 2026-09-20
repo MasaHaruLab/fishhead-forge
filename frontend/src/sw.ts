@@ -36,7 +36,7 @@ self.addEventListener('push', (event) => {
       // stale ones manually instead, then show a fresh alerting notification.
       const stale = await self.registration.getNotifications()
       stale.forEach((n) => n.close())
-      await self.registration.showNotification(data.title ?? 'Forge', {
+      await self.registration.showNotification(data.title ?? '鱼头健身', {
         body: data.body ?? '',
         icon: '/pwa-192.png',
         badge: '/pwa-192.png',

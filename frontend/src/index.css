@@ -28,104 +28,114 @@
   --color-ring: var(--ring);
   --color-accent-soft: var(--accent-soft);
   --color-set-done: var(--set-done);
+  --color-link: var(--link);
+  --color-primary-hover: var(--primary-hover);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* Light — the same warm near-white paper as Tome, with Forge's ember/copper
-   accent in place of Tome's oxblood. Same design DNA, sibling identity. */
+/* Light navy-gold (default) — 乐理大师「深蓝金」palette. Hex sources in THEME.md. */
 :root {
+  --palette-bg: #F7F4EF;
+  --palette-navy: #1B3A5C;
+  --palette-blue: #2E6DA4;
+  --palette-slate: #455A64;
+  --palette-gold: #C9A84C;
+  --palette-on-navy: #F7F4EF;
+
   --radius: 0.625rem;
-  --background: oklch(0.975 0.003 85);
-  --foreground: oklch(0.21 0.012 60);
-  --card: oklch(0.995 0.002 85);
-  --card-foreground: oklch(0.21 0.012 60);
-  --popover: oklch(0.995 0.002 85);
-  --popover-foreground: oklch(0.21 0.012 60);
-  --primary: oklch(0.48 0.13 45);
-  --primary-foreground: oklch(0.98 0.005 85);
-  --secondary: oklch(0.94 0.004 85);
-  --secondary-foreground: oklch(0.27 0.012 60);
-  --muted: oklch(0.94 0.004 85);
-  --muted-foreground: oklch(0.50 0.010 70);
-  --accent: oklch(0.93 0.006 55);
-  --accent-foreground: oklch(0.25 0.012 60);
+  --background: var(--palette-bg);
+  --foreground: var(--palette-navy);
+  --card: #FFFEFA;
+  --card-foreground: var(--palette-navy);
+  --popover: #FFFEFA;
+  --popover-foreground: var(--palette-navy);
+  --primary: var(--palette-navy);
+  --primary-foreground: var(--palette-on-navy);
+  --primary-hover: var(--palette-blue);
+  --secondary: color-mix(in srgb, var(--palette-navy) 6%, var(--palette-bg));
+  --secondary-foreground: var(--palette-navy);
+  --muted: color-mix(in srgb, var(--palette-slate) 8%, var(--palette-bg));
+  --muted-foreground: var(--palette-slate);
+  --accent: color-mix(in srgb, var(--palette-navy) 7%, var(--palette-bg));
+  --accent-foreground: var(--palette-navy);
   --destructive: oklch(0.55 0.21 30);
   --success: oklch(0.52 0.10 155);
-  --info: oklch(0.50 0.09 245);
+  --info: var(--palette-blue);
   --warning: oklch(0.58 0.12 70);
-  /* Record gold — PR badges. Same register as Tome's rating gold. */
-  --record: oklch(0.62 0.11 76);
-  --border: oklch(0.90 0.005 85);
-  --input: oklch(0.88 0.005 85);
-  --ring: oklch(0.48 0.13 45);
-  /* Chart accent validated against the light surface (contrast >= 3:1). */
-  --chart-accent: oklch(0.55 0.14 48);
-  /* Categorical series (family view): fixed order, validated as a set
-     against the light card surface — lightness band, chroma floor, CVD
-     separation, normal-vision separation, contrast all pass. */
+  --record: var(--palette-gold);
+  --link: var(--palette-blue);
+  --border: color-mix(in srgb, var(--palette-slate) 22%, transparent);
+  --input: color-mix(in srgb, var(--palette-slate) 28%, transparent);
+  --ring: var(--palette-navy);
+  --chart-accent: var(--palette-gold);
   --series-1: var(--chart-accent);
-  --series-2: #3d6bc0;
-  --series-3: #2e8a44;
-  --series-4: #8a4fb5;
-  --accent-soft: oklch(0.48 0.13 45 / 0.12);
-  /* Opaque accent-soft-over-card: completed set rows must fully cover the
-     swipe-to-delete layer mounted beneath them. */
-  --set-done: color-mix(in oklch, oklch(0.48 0.13 45) 12%, var(--card));
+  --series-2: var(--palette-blue);
+  --series-3: #3D6B5A;
+  --series-4: #8B5A6B;
+  --accent-soft: color-mix(in srgb, var(--palette-navy) 10%, transparent);
+  /* Opaque gold-over-card: completed set rows cover the swipe-to-delete layer. */
+  --set-done: color-mix(in srgb, var(--palette-gold) 18%, var(--card));
 }
 
-/* Dark — near-neutral warm charcoal + glowing ember. The default look:
-   a gym app lives in dark rooms and OLED phones. */
+/* Dark — deep navy surfaces; gold CTAs so buttons stay visible on navy cards.
+   Optional (Settings → Theme). Light navy-gold is the default. */
 .dark {
-  --background: oklch(0.16 0.004 60);
-  --foreground: oklch(0.955 0.004 80);
-  --card: oklch(0.21 0.005 60);
-  --card-foreground: oklch(0.955 0.004 80);
-  --popover: oklch(0.21 0.005 60);
-  --popover-foreground: oklch(0.955 0.004 80);
-  --primary: oklch(0.70 0.13 50);
-  --primary-foreground: oklch(0.15 0.02 50);
-  --secondary: oklch(0.265 0.005 60);
-  --secondary-foreground: oklch(0.955 0.004 80);
-  --muted: oklch(0.265 0.005 60);
-  --muted-foreground: oklch(0.74 0.008 70);
-  --accent: oklch(0.265 0.005 60);
-  --accent-foreground: oklch(0.955 0.004 80);
+  --background: #12263D;
+  --foreground: var(--palette-on-navy);
+  --card: var(--palette-navy);
+  --card-foreground: var(--palette-on-navy);
+  --popover: var(--palette-navy);
+  --popover-foreground: var(--palette-on-navy);
+  --primary: var(--palette-gold);
+  --primary-foreground: var(--palette-navy);
+  --primary-hover: color-mix(in srgb, var(--palette-gold) 82%, white);
+  --secondary: color-mix(in srgb, var(--palette-on-navy) 8%, #12263D);
+  --secondary-foreground: var(--palette-on-navy);
+  --muted: color-mix(in srgb, var(--palette-on-navy) 8%, #12263D);
+  --muted-foreground: color-mix(in srgb, var(--palette-on-navy) 72%, var(--palette-slate));
+  --accent: color-mix(in srgb, var(--palette-on-navy) 8%, #12263D);
+  --accent-foreground: var(--palette-on-navy);
   --destructive: oklch(0.70 0.19 28);
   --success: oklch(0.72 0.10 155);
-  --info: oklch(0.72 0.09 245);
+  --info: #7EB6E0;
   --warning: oklch(0.78 0.11 75);
-  --record: oklch(0.71 0.10 79);
-  --border: oklch(0.95 0.008 60 / 16%);
-  --input: oklch(0.95 0.008 60 / 20%);
-  --ring: oklch(0.70 0.13 50);
-  /* Darker than --primary on purpose: chart marks sit in the validated
-     dark-mode lightness band (L 0.48-0.67), buttons can run brighter. */
-  --chart-accent: oklch(0.65 0.13 50);
-  /* Dark-mode categorical steps, validated against the dark card surface. */
-  --series-2: #6389d6;
-  --series-3: #47a85e;
-  --series-4: #a774cd;
-  --accent-soft: oklch(0.70 0.13 50 / 0.16);
-  --set-done: color-mix(in oklch, oklch(0.70 0.13 50) 16%, var(--card));
+  --record: var(--palette-gold);
+  --link: #7EB6E0;
+  --border: color-mix(in srgb, var(--palette-on-navy) 18%, transparent);
+  --input: color-mix(in srgb, var(--palette-on-navy) 22%, transparent);
+  --ring: var(--palette-gold);
+  --chart-accent: var(--palette-gold);
+  --series-2: #7EB6E0;
+  --series-3: #6FA080;
+  --series-4: #C489A0;
+  --accent-soft: color-mix(in srgb, var(--palette-gold) 16%, transparent);
+  --set-done: color-mix(in srgb, var(--palette-gold) 20%, var(--card));
 }
 
-/* Black — true-black OLED, same ember identity. Applied alongside .dark. */
+/* Black — true-black OLED, same navy-gold identity. Applied alongside .dark. */
 .theme-black {
-  --background: oklch(0 0 0);
-  --card: oklch(0.145 0.003 60);
-  --popover: oklch(0.145 0.003 60);
-  --secondary: oklch(0.20 0.004 60);
-  --muted: oklch(0.20 0.004 60);
-  --accent: oklch(0.20 0.004 60);
-  --primary: oklch(0.72 0.13 50);
-  --ring: oklch(0.72 0.13 50);
-  --accent-soft: oklch(0.72 0.13 50 / 0.18);
-  --set-done: color-mix(in oklch, oklch(0.72 0.13 50) 18%, var(--card));
-  --border: oklch(1 0 0 / 17%);
-  --input: oklch(1 0 0 / 21%);
+  --background: #000000;
+  --card: #0F1C2B;
+  --popover: #0F1C2B;
+  --secondary: #152536;
+  --muted: #152536;
+  --accent: #152536;
+  --primary: var(--palette-gold);
+  --primary-foreground: var(--palette-navy);
+  --ring: var(--palette-gold);
+  --accent-soft: color-mix(in srgb, var(--palette-gold) 18%, transparent);
+  --set-done: color-mix(in srgb, var(--palette-gold) 18%, var(--card));
+  --border: color-mix(in srgb, var(--palette-on-navy) 17%, transparent);
+  --input: color-mix(in srgb, var(--palette-on-navy) 21%, transparent);
+}
+
+/* Primary button hover — navy → secondary blue on light; brighter gold on dark. */
+button.bg-primary:hover:not(:disabled),
+a.bg-primary:hover {
+  background-color: var(--primary-hover);
 }
 
 /* Card stagger entrance animation.
@@ -216,7 +226,7 @@
   animation: trophy-pop 0.45s var(--spring) both;
 }
 
-/* Barbell empty-state animation — Forge's counterpart to Tome's floating book.
+/* Barbell empty-state animation — floating iron.
    Stroke/fill inherit currentColor; the shadow breathes with the bob. */
 .bb-anim svg { width: 100%; height: 100%; overflow: visible; }
 .bb-anim .bb-bar { animation: bb-floaty 3.2s ease-in-out infinite; transform-origin: 32px 20px; }

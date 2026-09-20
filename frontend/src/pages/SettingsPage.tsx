@@ -12,6 +12,7 @@ import { disableRestPush, enableRestPush, pushEnabled, pushSupported } from '../
 import { isRpeEnabled, setRpeEnabled } from '../lib/prefs'
 import { toast } from '../lib/toast'
 import { isTimerSoundEnabled, setTimerSoundEnabled } from '../lib/timer'
+import { APP_NAME, APP_NAME_FULL } from '../lib/brand'
 import { applyTheme, getStoredTheme, THEMES, type ThemeId } from '../lib/theme'
 import type { User } from '../lib/types'
 
@@ -468,7 +469,7 @@ export default function SettingsPage() {
                     const result = await enableRestPush()
                     if (result === 'enabled') setRestPush(true)
                     else if (result === 'denied')
-                      setError('Notifications are blocked for Forge in system settings')
+                      setError(`Notifications are blocked for ${APP_NAME} in system settings`)
                   }
                 } catch {
                   setError('Could not set up push notifications')
@@ -1010,7 +1011,7 @@ export default function SettingsPage() {
       </Sheet>
 
       <p className="mt-8 text-center text-xs text-muted-foreground">
-        Forge {serverVersion && serverVersion !== 'dev' ? serverVersion : ''} · self-hosted iron tracking · build {__BUILD__}
+        {APP_NAME_FULL} {serverVersion && serverVersion !== 'dev' ? serverVersion : ''} · gym checklist logging · build {__BUILD__}
       </p>
       <button
         onClick={checkForUpdates}

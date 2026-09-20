@@ -533,7 +533,7 @@ export default function WorkoutDetailPage() {
               {editing ? (
                 <span className="font-semibold text-primary">{we.name}</span>
               ) : (
-                <Link to={`/exercises/${we.exercise_id}`} className="min-w-0 font-semibold text-primary">
+                <Link to={`/exercises/${we.exercise_id}`} className="min-w-0 font-semibold text-link">
                   {we.name}
                 </Link>
               )}

@@ -14,14 +14,14 @@ export interface ShareCardData {
   music?: { songs: number; top_artist: string | null; pr_song: string | null }
 }
 
-// Tome/Forge dark tokens, hex-approximated for canvas
-const BG = '#171412'
-const CARD = '#211d1a'
-const BORDER = '#37312c'
-const INK = '#ece7e0'
-const MUTED = '#a49c92'
-const EMBER = '#de844f'
-const RECORD = '#d4a843'
+// 乐理大师 navy-gold, hex for canvas (see THEME.md)
+const BG = '#1B3A5C'
+const CARD = '#12263D'
+const BORDER = '#455A64'
+const INK = '#F7F4EF'
+const MUTED = '#C4CDD2'
+const NAVY_LIGHT = '#2E6DA4'
+const RECORD = '#C9A84C'
 
 const W = 1080
 const PAD = 88
@@ -54,18 +54,18 @@ function drawCard(summary: ShareCardData, unit: string): HTMLCanvasElement {
   ctx.fillStyle = BG
   ctx.fillRect(0, 0, W, H)
 
-  // Ember glow up top so the card isn't a flat void
+  // Gold glow up top so the card isn't a flat navy void
   const glow = ctx.createRadialGradient(W / 2, -200, 60, W / 2, -200, 900)
-  glow.addColorStop(0, 'rgba(222,132,79,0.28)')
-  glow.addColorStop(1, 'rgba(222,132,79,0)')
+  glow.addColorStop(0, 'rgba(201,168,76,0.28)')
+  glow.addColorStop(1, 'rgba(201,168,76,0)')
   ctx.fillStyle = glow
   ctx.fillRect(0, 0, W, 700)
 
   // Wordmark + date
-  ctx.fillStyle = EMBER
+  ctx.fillStyle = RECORD
   ctx.font = "700 44px 'Bricolage Grotesque', 'Onest', sans-serif"
   ctx.textBaseline = 'top'
-  ctx.fillText('Forge', PAD, PAD)
+  ctx.fillText('鱼头健身', PAD, PAD)
   const date = (summary.date ?? new Date()).toLocaleDateString(undefined, {
     day: 'numeric',
     month: 'long',
@@ -133,7 +133,7 @@ function drawCard(summary: ShareCardData, unit: string): HTMLCanvasElement {
         100,
     )
     if (delta !== 0) {
-      ctx.fillStyle = delta > 0 ? EMBER : MUTED
+      ctx.fillStyle = delta > 0 ? RECORD : MUTED
       ctx.font = "600 36px 'Onest', sans-serif"
       ctx.fillText(`${delta > 0 ? '+' : ''}${delta}% volume vs last time`, PAD, y)
       y += 76
@@ -184,7 +184,7 @@ function drawCard(summary: ShareCardData, unit: string): HTMLCanvasElement {
   // Soundtrack
   if (summary.music && summary.music.songs > 0) {
     y += 24
-    ctx.fillStyle = EMBER
+    ctx.fillStyle = NAVY_LIGHT
     ctx.font = "600 34px 'Onest', sans-serif"
     ctx.fillText('♪', PAD, y)
     ctx.fillStyle = INK
@@ -209,7 +209,7 @@ function drawCard(summary: ShareCardData, unit: string): HTMLCanvasElement {
   // Footer
   ctx.fillStyle = MUTED
   ctx.font = "500 30px 'Onest', sans-serif"
-  ctx.fillText('Tracked with Forge — self-hosted iron tracking', PAD, H - PAD - 30)
+  ctx.fillText('Tracked with 鱼头健身 — Forge · 鱼头', PAD, H - PAD - 30)
 
   return canvas
 }

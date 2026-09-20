@@ -3,6 +3,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { api } from '../lib/api'
+import { APP_NAME } from '../lib/brand'
 
 export default function SetupPage() {
   const { setup } = useAuth()
@@ -46,7 +47,7 @@ export default function SetupPage() {
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
             <Flame size={34} />
           </div>
-          <h1 className="text-3xl">Welcome to Forge</h1>
+          <h1 className="text-3xl">Welcome to {APP_NAME}</h1>
           <p className="text-center text-sm text-muted-foreground">
             Create the admin account for this instance
           </p>
