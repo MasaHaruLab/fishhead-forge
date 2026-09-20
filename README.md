@@ -1,12 +1,14 @@
-# Forge
+# Forge · 鱼头
 
 Self-hosted workout tracking for weight training, running entirely on your own
 server: templates, set/rep/weight logging with previous-workout ghosts, rest
 timers between sets, supersets, personal records, and progress charts. Your
 training data stays yours. No cardio, by design.
 
-Sibling app to [Tome](../tome): same design language (warm paper / charcoal
-surfaces, OKLCH tokens, Onest + Bricolage Grotesque), its own ember accent.
+This is a **鱼头** fork of [Forge](https://github.com/bndct-devops/forge): the
+gym-logging shell for checklist sessions that will later feed 健身教练. The
+default look is 乐理大师 navy + turmeric gold on paper (`#F7F4EF` / `#1B3A5C` /
+`#C9A84C`). Token map: [THEME.md](THEME.md).
 
 | Workout | Live logging | Stats |
 |---|---|---|
@@ -58,7 +60,7 @@ surfaces, OKLCH tokens, Onest + Bricolage Grotesque), its own ember accent.
   MQTT for Home Assistant, and a weekly digest over Web Push
 - **Multi-user** — first-run setup creates the admin; admins manage users in
   Settings; JWT auth
-- **PWA** — installable, launch splash screens, dark (default) / light /
+- **PWA** — installable, launch splash screens, light navy-gold (default) / dark /
   true-black OLED themes, drag-dismissable sheets, edge-swipe back
 
 ## Self-hosting

@@ -5,7 +5,7 @@ import { shareWorkoutCard } from '../lib/shareCard'
 import { toast } from '../lib/toast'
 import type { FinishResult } from '../lib/types'
 
-/** Brief ember-toned confetti burst. Hand-rolled — no dependencies, respects
+/** Brief navy-gold confetti burst. Hand-rolled — no dependencies, respects
  *  prefers-reduced-motion, cleans itself up after the burst settles. */
 function Confetti() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -24,7 +24,7 @@ function Confetti() {
     canvas.height = h * dpr
     ctx.scale(dpr, dpr)
 
-    const colors = ['#de844f', '#b8873f', '#e8e4dc', '#b05315', '#c56b6a']
+    const colors = ['#C9A84C', '#1B3A5C', '#2E6DA4', '#F7F4EF', '#455A64']
     const origin = { x: w / 2, y: h * 0.3 }
     const particles = Array.from({ length: 60 }, (_, i) => {
       const angle = (Math.PI * 2 * i) / 60 + Math.random() * 0.4

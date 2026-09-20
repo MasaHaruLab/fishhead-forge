@@ -17,11 +17,11 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['apple-touch-icon.png', 'favicon.svg'],
       manifest: {
-        name: 'Forge',
-        short_name: 'Forge',
-        description: 'Self-hosted workout tracking',
-        theme_color: '#171412',
-        background_color: '#171412',
+        name: 'Forge · 鱼头',
+        short_name: '鱼头健身',
+        description: '鱼头健身 — gym checklist logging (Forge fork)',
+        theme_color: '#F7F4EF',
+        background_color: '#F7F4EF',
         display: 'standalone',
         icons: [
           { src: '/pwa-192.png', sizes: '192x192', type: 'image/png' },

@@ -2,6 +2,7 @@ import { Dumbbell, Flame, History, Settings, BicepsFlexed, Play, Timer, Trending
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useWorkout } from '../contexts/WorkoutContext'
 import { formatClock, parseUTC } from '../lib/format'
+import { APP_NAME } from '../lib/brand'
 import { useRestTimer } from '../lib/timer'
 import { cn } from '../lib/utils'
 import { useEffect, useRef, useState } from 'react'
@@ -88,7 +89,7 @@ export default function AppShell() {
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
             <Flame size={20} />
           </div>
-          <span className="font-display text-xl">Forge</span>
+          <span className="font-display text-xl">{APP_NAME}</span>
         </div>
         <nav className="flex flex-col gap-1">
           {TABS.map(({ to, label, icon: Icon }) => (
@@ -101,7 +102,7 @@ export default function AppShell() {
                 cn(
                   'touch-feedback flex items-center gap-3 rounded-lg px-3 py-2.5 font-medium transition-colors',
                   isActive
-                    ? 'bg-accent-soft text-primary'
+                    ? 'bg-accent-soft text-link'
                     : 'text-muted-foreground hover:bg-secondary hover:text-foreground',
                 )
               }
@@ -142,7 +143,7 @@ export default function AppShell() {
                   className={({ isActive }) =>
                     cn(
                       'touch-feedback flex flex-col items-center gap-1 py-2 pt-2.5 text-[11px] font-medium',
-                      isActive ? 'text-primary' : 'text-muted-foreground',
+                      isActive ? 'text-link' : 'text-muted-foreground',
                     )
                   }
                 >

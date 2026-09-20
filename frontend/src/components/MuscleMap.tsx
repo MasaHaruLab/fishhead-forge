@@ -1,9 +1,9 @@
 import { memo } from 'react'
 import { BODY_FRONT, BODY_BACK, type BodyPath, type MuscleRegion } from '../lib/bodyPaths'
 
-const NEUTRAL_BODY = 'color-mix(in oklch, var(--foreground) 5%, transparent)'
-const NEUTRAL_MUSCLE = 'color-mix(in oklch, var(--foreground) 9%, transparent)'
-const SECONDARY = 'color-mix(in oklch, var(--primary) 35%, transparent)'
+const NEUTRAL_BODY = 'color-mix(in srgb, var(--foreground) 5%, transparent)'
+const NEUTRAL_MUSCLE = 'color-mix(in srgb, var(--foreground) 9%, transparent)'
+const SECONDARY = 'color-mix(in srgb, var(--link) 35%, transparent)'
 
 function Figure({
   paths,

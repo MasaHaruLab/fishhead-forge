@@ -9,7 +9,7 @@ const OPTIONS: { value: Theme; label: string; icon: typeof Sun }[] = [
 ]
 
 export function ThemeToggle() {
-  const [theme, setLocal] = useState<Theme>('dark')
+  const [theme, setLocal] = useState<Theme>('light')
 
   useEffect(() => {
     setLocal(readTheme())

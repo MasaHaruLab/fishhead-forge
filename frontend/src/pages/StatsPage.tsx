@@ -177,14 +177,14 @@ function heatColor(workouts: number): string {
   return workouts === 0
     ? 'var(--secondary)'
     : workouts === 1
-      ? 'color-mix(in oklch, var(--chart-accent) 55%, var(--secondary))'
+      ? 'color-mix(in srgb, var(--chart-accent) 55%, var(--secondary))'
       : 'var(--chart-accent)'
 }
 
 const LABEL_COL = 30 // px, weekday labels
 
-const SERIES_COLORS = ['var(--chart-accent)', '#6d87ab', '#5a9367']
-const RPE_COLOR = '#6d87ab'
+const SERIES_COLORS = ['var(--chart-accent)', 'var(--link)', 'var(--series-3)']
+const RPE_COLOR = 'var(--link)'
 
 function formatRest(seconds: number): string {
   const m = Math.floor(seconds / 60)

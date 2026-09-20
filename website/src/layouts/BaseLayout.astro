@@ -31,7 +31,7 @@ const ogImage = `${siteUrl}${withBase('/og.png')}`
 
     <!-- Open Graph (Slack, Discord, iMessage, LinkedIn, Facebook, …) -->
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Forge" />
+    <meta property="og:site_name" content="Forge · 鱼头" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
@@ -50,7 +50,7 @@ const ogImage = `${siteUrl}${withBase('/og.png')}`
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
-      "name": "Forge",
+      "name": "Forge · 鱼头",
       "applicationCategory": "HealthApplication",
       "operatingSystem": "Linux, Docker",
       "description": description,
@@ -78,7 +78,7 @@ const ogImage = `${siteUrl}${withBase('/og.png')}`
             const valid = stored === 'light' || stored === 'dark' || stored === 'black'
             t = valid
               ? stored
-              : 'dark'
+              : 'light'
           }
           document.documentElement.classList.add('theme-' + t)
           // Strip ?theme= for a clean URL once we've taken it on board.

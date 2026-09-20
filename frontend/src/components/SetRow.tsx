@@ -263,7 +263,7 @@ export default function SetRow({
         onTouchCancel={onTouchEnd}
       >
         {justDone && (
-          <div className="animate-set-flash pointer-events-none absolute inset-0 bg-primary" />
+          <div className="animate-set-flash pointer-events-none absolute inset-0 bg-record" />
         )}
         <button
           onClick={onMarker}

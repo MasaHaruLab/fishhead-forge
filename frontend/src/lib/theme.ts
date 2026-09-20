@@ -15,7 +15,7 @@ export function getStoredTheme(): ThemeId {
   if (stored === 'light' || stored === 'dark' || stored === 'black' || stored === 'system') {
     return stored
   }
-  return 'dark'
+  return 'light'
 }
 
 function apply(resolved: 'light' | 'dark' | 'black') {
@@ -26,7 +26,7 @@ function apply(resolved: 'light' | 'dark' | 'black') {
   if (meta) {
     meta.setAttribute(
       'content',
-      resolved === 'light' ? '#f8f7f4' : resolved === 'black' ? '#000000' : '#171412',
+      resolved === 'light' ? '#F7F4EF' : resolved === 'black' ? '#000000' : '#12263D',
     )
   }
 }
